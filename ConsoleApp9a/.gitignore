@@ -1,0 +1,9 @@
+bin
+/bin
+../obj
+.idea/
+/.idea
+../.idea
+.DS_Store
+.DS_Store?
+/bin
