@@ -13,6 +13,9 @@ namespace ConsoleApp9a
         private int _numberOfVertexes;
         // Where we will calculate the shortest paths
         private DijkstraTable _dijkstraTable;
+        
+        // The key to identify the source Vertex
+        private string _sourceVertexKey = null;
 
         /**
          * And object that represents a source vertex,
@@ -282,32 +285,16 @@ namespace ConsoleApp9a
 
             WeightedGraph g = CreateWeightedGraph(graphNum);
             // Print the selected graph
+            g.initializeDijkstraTable();
+            Console.WriteLine("******** DijkstraTable (Empty) ******** "); 
+            g.PrintDijkstraTable();
+            
             // Verify that it looks like the original
 
             // Print the Dijkstra distances from first vertex provided
-            g.printDijkstraCalculations();
-        }
-
-        private void printDijkstraCalculations()
-        {
-            doDijkstraCalculations();
-
-            foreach (var distEntry in _dijkstraTable.GetRows())
-            {
-                DijkstraTableRow row = distEntry.Value;
-                string sourceVertex = row.GetKey();
-                string prevoiusVertex = row.GetPreviousVertex();
-                int distanceToStartVertex = row.GetDistanceFromStart();
-                if (String.IsNullOrEmpty(prevoiusVertex) && distanceToStartVertex == int.MaxValue)
-                {
-                    Console.WriteLine("Source Vertex: " + row.GetKey());
-                }
-                else
-                {
-                    Console.WriteLine("Source: " + row.GetKey() + ", Previous: " + row.GetPreviousVertex() +
-                                      ", Distance: " + row.GetDistanceFromStart());
-                }
-            }
+            g.doDijkstraCalculations();
+            Console.WriteLine("*********** Dijkstra's Shortest Path ***********");
+            g.PrintDijkstraTable();
         }
 
         /**
@@ -317,13 +304,13 @@ namespace ConsoleApp9a
          */
         private string initializeDijkstraTable()
         {
-            string sourceVertexKey = null;
+            // string sourceVertexKey = null;
             _dijkstraTable = new DijkstraTable(_numberOfVertexes);
             foreach (WeightedEdge edge in _weightedEdges)
             {
-                if (String.IsNullOrEmpty(sourceVertexKey))
+                if (String.IsNullOrEmpty(_sourceVertexKey))
                 {
-                    sourceVertexKey = edge.GetStartVertex();
+                    _sourceVertexKey = edge.GetStartVertex();
                 }
 
                 // Build a table with starting vertex, empty previous vertex, and infinity for distances
@@ -332,19 +319,41 @@ namespace ConsoleApp9a
                 _dijkstraTable.SetRow(new DijkstraTableRow(edge.GetEndVertex(), null, int.MaxValue, int.MaxValue));
             }
 
-            return sourceVertexKey;
+            return _sourceVertexKey;
+        }
+
+        private void PrintDijkstraTable()
+        {
+            foreach (var distEntry in _dijkstraTable.GetRows())
+            {
+                DijkstraTableRow row = distEntry.Value;
+                string prevoiusVertex = row.GetPreviousVertex();
+                int distanceToStartVertex = row.GetDistanceFromStart();
+                if (row.GetKey() == _sourceVertexKey)
+                {
+                    Console.WriteLine("Source Vertex: " + row.GetKey());
+                }
+                else if (String.IsNullOrEmpty(prevoiusVertex) && distanceToStartVertex == int.MaxValue)
+                {
+                    Console.WriteLine("Source Vertex: " + row.GetKey() + ", Previous: Empty , Distance: Infinity");
+                }
+                else
+                {
+                    Console.WriteLine("Source: " + row.GetKey() + ", Previous: " + row.GetPreviousVertex() +
+                                      ", Distance: " + row.GetDistanceFromStart());
+                }
+            }
+
+            Console.WriteLine("");
         }
         private void doDijkstraCalculations()
         {
-            Console.WriteLine("***********Dijkstra's Shortest Path***********");
-            
             string sourceVertexKey = initializeDijkstraTable();
 
             // Now go through each weighted edge combo to build the shortest distance matrix
             string currentKey;
             DijkstraTableRow currentRow;
             Vertex currentVertex;
-            int lowestValue = int.MaxValue;
 
             foreach (KeyValuePair<string, Vertex> vertexEntry in _adjencyDictionary)
             {
@@ -352,14 +361,14 @@ namespace ConsoleApp9a
                 currentKey = currentVertex.GetKey();
                 // Is the current row we have the source/first row in the shortest distance table?
                 bool isSourceRow = vertexEntry.Key == sourceVertexKey;
-
-                // Find the adjacent vertexes to this vertex
+                
+                // Look to see if the current vertex has collection of adjacent vertexes
                 if (currentVertex.GetAdjacent().Count > 0)
                 {
                     // Pull the row from the  shortest distance table matching the current key
                     currentRow = _dijkstraTable.GetRow(currentKey);
 
-                    // Look to see if the vertex has collection of adjacent vertexes
+                    // Loop through adjacents
                     foreach (AdjacentVertex adjacentVertex in currentVertex.GetAdjacent())
                     {
                         // Get the row (from the shortest distance table) for the adjacent vertex
@@ -367,12 +376,12 @@ namespace ConsoleApp9a
 
                         if (!isSourceRow && sourceVertexKey == adjacentRow.GetKey())
                         {
-                            // If here, this adjacent row has a direct path back to the source
+                            // If here, the current row is not the source row, 
+                            // but this adjacent row has a direct path back to the source
                             // ONLY IF the direct path is shorter than last calculation, update it
                             // (A direct path to source does NOT guarantee shortest distance!)
                             if (adjacentVertex.GetDistanceToPrevious() < currentRow.GetDistanceFromStart())
                             {
-                                // Store the current previous vertex before update
                                 // Update with the new shorter distance, and the new previous vertex
                                 currentRow.SetPreviousVertex(sourceVertexKey);
                                 currentRow.SetDistanceFromStart(adjacentVertex.GetDistanceToPrevious());
@@ -391,12 +400,12 @@ namespace ConsoleApp9a
                                                                       currentRow.GetDistanceFromStart();
                                             // If this row's distance to source is more than 
                                             // this row's distance to current vertex 
-                                            // PLUS it's distance to source, add it
+                                            // PLUS it's distance to source, update the DijkstraTableRow
                                             if (newDistanceToSource < row.GetDistanceFromStart())
                                             {
-                                                row.SetPreviousVertex(currentRow.GetKey());
-                                                row.SetDistanceFromPrevious(adj.GetDistanceToPrevious());
-                                                row.SetDistanceFromStart(newDistanceToSource);
+                                               row.SetPreviousVertex(currentRow.GetKey());
+                                               row.SetDistanceFromPrevious(adj.GetDistanceToPrevious());
+                                               row.SetDistanceFromStart(newDistanceToSource);
                                             }
                                         }
                                     }
@@ -458,14 +467,12 @@ namespace ConsoleApp9a
 
                                     if (adjacentRow.GetDistanceFromStart() == int.MaxValue)
                                     {
-                                        lowestValue = newDistanceToSource;
                                         adjacentRow.SetDistanceFromStart(newDistanceToSource);
                                         adjacentRow.SetPreviousVertex(currentKey);
                                     }
                                     else if (newDistanceToSource < adjacentRow.GetDistanceFromStart())
                                     {
                                         // Update this row with the new path and distance
-                                        // lowestValue = newDistanceToSource;
                                         adjacentRow.SetDistanceFromStart(newDistanceToSource);
                                         adjacentRow.SetPreviousVertex(currentKey);
                                     }
