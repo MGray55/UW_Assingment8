@@ -15,6 +15,16 @@ I created several classes in C#
 For tracking the items while building the Dijkstra table, I used
 ``` private Dictionary<string, Vertex> _adjencyDictionary; ```
 
+As an example, choosing '1' to run the application, the following edges will be used:
+- {a, b, 12}
+- {b, c, 3}
+- {b, d, 5}
+- {d, c, 1}
+- {c, a, 2}
+
+This represents a graph like this:
+![Graph](/IMG_2288.jpg)
+
 ### What I would do differently:
 - I would not have created as many iterable collections. I ended up with more than I needed. I could have gotten away with using the Table or the _adjacencyDictionary.
 - I ended up having too many if conditions as a result of the previous point

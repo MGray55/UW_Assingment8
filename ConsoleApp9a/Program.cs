@@ -7,13 +7,16 @@ namespace ConsoleApp9a
     {
         // A collection of weighted edges built with pairs to start the process
         private List<WeightedEdge> _weightedEdges;
+
         // Creates a dictionary of parent Vertexes, which each have adjacent children collections
         private Dictionary<string, Vertex> _adjencyDictionary;
+
         // Integer to set the number of rows needed in the Dijkstra table
         private int _numberOfVertexes;
+
         // Where we will calculate the shortest paths
         private DijkstraTable _dijkstraTable;
-        
+
         // The key to identify the source Vertex
         private string _sourceVertexKey = null;
 
@@ -73,7 +76,6 @@ namespace ConsoleApp9a
                 _distanceFromParentVertex = distanceFromParent;
             }
         }
-
 
         /**
          * Object that represents an edge path
@@ -185,7 +187,7 @@ namespace ConsoleApp9a
                     _rows.Add(row.GetKey(), row);
                 }
             }
-            
+
             public DijkstraTableRow GetRow(string key)
             {
                 return _rows[key];
@@ -239,7 +241,7 @@ namespace ConsoleApp9a
             // Build weighted graph with some bigger values, and loops
             else if (graphNum == 2)
             {
-                g = new WeightedGraph( 8);
+                g = new WeightedGraph(8);
                 g.AddEdge("a", "b", 3);
                 g.AddEdge("b", "c", 44);
                 g.AddEdge("c", "d", 1);
@@ -254,7 +256,7 @@ namespace ConsoleApp9a
             // Note: d should end up only 1 away from source
             else if (graphNum == 3)
             {
-                g = new WeightedGraph( 10);
+                g = new WeightedGraph(10);
                 g.AddEdge("a", "b", 1);
                 g.AddEdge("a", "c", 1);
                 g.AddEdge("b", "d", 1);
@@ -267,7 +269,7 @@ namespace ConsoleApp9a
             }
             else
             {
-                g = new WeightedGraph( 3);
+                g = new WeightedGraph(3);
                 g.AddEdge("a", "b", 1);
                 g.AddEdge("a", "c", 2);
             }
@@ -286,17 +288,15 @@ namespace ConsoleApp9a
             WeightedGraph g = CreateWeightedGraph(graphNum);
             // Verify that it looks like the original
             g.PrintWeightedEdges();
-            
+
             // Print the selected graph
             g.initializeDijkstraTable();
             g.PrintDijkstraTable();
-            
-
 
             // Print the Dijkstra distances from first vertex provided
             g.doDijkstraCalculations();
-            Console.WriteLine("------------------------------------"); 
-            Console.WriteLine("Dijkstra's Shortest Path:"); 
+            Console.WriteLine("------------------------------------");
+            Console.WriteLine("Dijkstra's Shortest Path:");
             Console.WriteLine("------------------------------------");
             g.PrintDijkstraTable();
         }
@@ -323,24 +323,25 @@ namespace ConsoleApp9a
                 _dijkstraTable.SetRow(new DijkstraTableRow(edge.GetEndVertex(), null, int.MaxValue, int.MaxValue));
             }
 
-            Console.WriteLine("------------------------------------"); 
-            Console.WriteLine("DijkstraTable initialized:"); 
+            Console.WriteLine("------------------------------------");
+            Console.WriteLine("DijkstraTable initialized:");
             Console.WriteLine("------------------------------------");
             return _sourceVertexKey;
         }
 
         private void PrintWeightedEdges()
         {
-            Console.WriteLine("------------------------------------"); 
-            Console.WriteLine("Weighted edges for this execution: "); 
-            Console.WriteLine("------------------------------------"); 
+            Console.WriteLine("------------------------------------");
+            Console.WriteLine("Weighted edges for this execution: ");
+            Console.WriteLine("------------------------------------");
             foreach (WeightedEdge edge in _weightedEdges)
             {
-                Console.WriteLine("{" + edge.GetStartVertex() + ", " + edge.GetEndVertex() + ", " + edge.GetEdgeDistance() + "}");
+                Console.WriteLine("{" + edge.GetStartVertex() + ", " + edge.GetEndVertex() + ", " +
+                                  edge.GetEdgeDistance() + "}");
             }
-            Console.WriteLine(""); 
+
+            Console.WriteLine("");
         }
-        
 
         private void PrintDijkstraTable()
         {
@@ -366,9 +367,9 @@ namespace ConsoleApp9a
 
             Console.WriteLine("");
         }
+
         private void doDijkstraCalculations()
         {
-
             // Now go through each weighted edge combo to build the shortest distance matrix
             string currentKey;
             DijkstraTableRow currentRow;
@@ -380,7 +381,7 @@ namespace ConsoleApp9a
                 currentKey = currentVertex.GetKey();
                 // Is the current row we have the source/first row in the shortest distance table?
                 bool isSourceRow = vertexEntry.Key == _sourceVertexKey;
-                
+
                 // Look to see if the current vertex has collection of adjacent vertexes
                 if (currentVertex.GetAdjacent().Count > 0)
                 {
@@ -422,9 +423,9 @@ namespace ConsoleApp9a
                                             // PLUS it's distance to source, update the DijkstraTableRow
                                             if (newDistanceToSource < row.GetDistanceFromStart())
                                             {
-                                               row.SetPreviousVertex(currentRow.GetKey());
-                                               row.SetDistanceFromPrevious(adj.GetDistanceToPrevious());
-                                               row.SetDistanceFromStart(newDistanceToSource);
+                                                row.SetPreviousVertex(currentRow.GetKey());
+                                                row.SetDistanceFromPrevious(adj.GetDistanceToPrevious());
+                                                row.SetDistanceFromStart(newDistanceToSource);
                                             }
                                         }
                                     }
