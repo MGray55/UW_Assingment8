@@ -284,16 +284,20 @@ namespace ConsoleApp9a
             int graphNum = int.Parse(input);
 
             WeightedGraph g = CreateWeightedGraph(graphNum);
+            // Verify that it looks like the original
+            g.PrintWeightedEdges();
+            
             // Print the selected graph
             g.initializeDijkstraTable();
-            Console.WriteLine("******** DijkstraTable (Empty) ******** "); 
             g.PrintDijkstraTable();
             
-            // Verify that it looks like the original
+
 
             // Print the Dijkstra distances from first vertex provided
             g.doDijkstraCalculations();
-            Console.WriteLine("*********** Dijkstra's Shortest Path ***********");
+            Console.WriteLine("------------------------------------"); 
+            Console.WriteLine("Dijkstra's Shortest Path:"); 
+            Console.WriteLine("------------------------------------");
             g.PrintDijkstraTable();
         }
 
@@ -319,8 +323,24 @@ namespace ConsoleApp9a
                 _dijkstraTable.SetRow(new DijkstraTableRow(edge.GetEndVertex(), null, int.MaxValue, int.MaxValue));
             }
 
+            Console.WriteLine("------------------------------------"); 
+            Console.WriteLine("DijkstraTable initialized:"); 
+            Console.WriteLine("------------------------------------");
             return _sourceVertexKey;
         }
+
+        private void PrintWeightedEdges()
+        {
+            Console.WriteLine("------------------------------------"); 
+            Console.WriteLine("Weighted edges for this execution: "); 
+            Console.WriteLine("------------------------------------"); 
+            foreach (WeightedEdge edge in _weightedEdges)
+            {
+                Console.WriteLine("{" + edge.GetStartVertex() + ", " + edge.GetEndVertex() + ", " + edge.GetEdgeDistance() + "}");
+            }
+            Console.WriteLine(""); 
+        }
+        
 
         private void PrintDijkstraTable()
         {
@@ -348,7 +368,6 @@ namespace ConsoleApp9a
         }
         private void doDijkstraCalculations()
         {
-            string sourceVertexKey = initializeDijkstraTable();
 
             // Now go through each weighted edge combo to build the shortest distance matrix
             string currentKey;
@@ -360,7 +379,7 @@ namespace ConsoleApp9a
                 currentVertex = _adjencyDictionary[vertexEntry.Key];
                 currentKey = currentVertex.GetKey();
                 // Is the current row we have the source/first row in the shortest distance table?
-                bool isSourceRow = vertexEntry.Key == sourceVertexKey;
+                bool isSourceRow = vertexEntry.Key == _sourceVertexKey;
                 
                 // Look to see if the current vertex has collection of adjacent vertexes
                 if (currentVertex.GetAdjacent().Count > 0)
@@ -374,7 +393,7 @@ namespace ConsoleApp9a
                         // Get the row (from the shortest distance table) for the adjacent vertex
                         DijkstraTableRow adjacentRow = _dijkstraTable.GetRow(adjacentVertex.GetKey());
 
-                        if (!isSourceRow && sourceVertexKey == adjacentRow.GetKey())
+                        if (!isSourceRow && _sourceVertexKey == adjacentRow.GetKey())
                         {
                             // If here, the current row is not the source row, 
                             // but this adjacent row has a direct path back to the source
@@ -383,7 +402,7 @@ namespace ConsoleApp9a
                             if (adjacentVertex.GetDistanceToPrevious() < currentRow.GetDistanceFromStart())
                             {
                                 // Update with the new shorter distance, and the new previous vertex
-                                currentRow.SetPreviousVertex(sourceVertexKey);
+                                currentRow.SetPreviousVertex(_sourceVertexKey);
                                 currentRow.SetDistanceFromStart(adjacentVertex.GetDistanceToPrevious());
                                 currentRow.SetDistanceFromPrevious(adjacentVertex.GetDistanceToPrevious());
                                 // Now we need to make sure any previous rows
@@ -434,7 +453,7 @@ namespace ConsoleApp9a
                             {
                                 // If here, the **current** row in the table is not the source vertex
                                 // If the row already has a link back to source, only update if necessary
-                                if (adjacentRow.GetPreviousVertex() != sourceVertexKey)
+                                if (adjacentRow.GetPreviousVertex() != _sourceVertexKey)
                                 {
                                     // If here, the **adjacent** child to the current row, is NOT the source row
                                     // Meaning we are comparing two rows that are no the source
