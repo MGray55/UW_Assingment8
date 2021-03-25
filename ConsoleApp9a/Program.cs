@@ -367,7 +367,7 @@ namespace ConsoleApp9a
             DijkstraTableRow B_RowKey = graph._dijkstraTable.GetRow("b");
             WeightedEdge originalEdge = EdgeList.Find(x => x.GetStartVertex() == "a" && x.GetEndVertex() == "b");
 
-            if (B_RowKey.GetDistanceFromStart() == 5 && originalEdge.GetEdgeDistance() == 12)
+            if (B_RowKey.GetDistanceFromStart() == 5 && originalEdge != null && originalEdge.GetEdgeDistance() == 12)
                 Console.WriteLine("pass");
             else
                 Console.WriteLine("fail");
