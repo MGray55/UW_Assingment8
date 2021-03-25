@@ -1,5 +1,8 @@
 # Dijkstra's Shortest Path Assignment:
 
+### Direct link to code:
+[Program.cs](https://github.com/MGray55/UW_Assingment8/blob/main/ConsoleApp9a/Program.cs)
+
 ### What I did:
 The assumption is that all graphs are non-directional, and paths should be whatver the shortest combination of distances on a weighted edge.
 I created several classes in C#
