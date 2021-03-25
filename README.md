@@ -26,7 +26,8 @@ This represents a graph like this:
 ![Graph](/IMG_2288.jpg)
 
 ### What I would do differently:
+- I definitely made some decisions early on, that I came to not like later. My original thought was to use the Vertex object more like a linked list, but the Dictionary turned out to be a much better mechanism.
 - I would not have created as many iterable collections. I ended up with more than I needed. I could have gotten away with using the Table or the _adjacencyDictionary. This creates too much overhead
-- I ended up having too many if conditions as a result of the previous point
+- I ended up having too many 'if' conditions as a result of the previous point.
 - There is enough repition here that recursion would have made the work more compact and readable. If I didn't have as many collections, it would have been easier.
-- I definitely made some decisions early on, that I came to not like later on. My original thought was to use the Vertex object more like a linked list, but the Dictionary turned out to be a much better mechanism
+
