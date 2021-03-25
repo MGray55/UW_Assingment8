@@ -21,6 +21,14 @@ namespace ConsoleApp9a
         private string _sourceVertexKey = null;
 
         /**
+         * Read-only
+         */
+        public List<WeightedEdge> GetWeightedEdges()
+        {
+            return _weightedEdges;
+        }
+
+        /**
          * And object that represents a source vertex,
          * with a collection of adjacent (child) vertexes
          * Allows mapping connections from this vertex to it's neighbors
@@ -82,7 +90,7 @@ namespace ConsoleApp9a
          * between two Vertex objects.
          * The path is non-directional
          */
-        private class WeightedEdge
+        public class WeightedEdge
         {
             private readonly string _startVertex;
             private readonly string _endVertex;
@@ -281,24 +289,88 @@ namespace ConsoleApp9a
         {
             // Choose a type 
             Console.WriteLine("Enter a number 1,2, or 3 for different Dykstra calculations");
-            Console.WriteLine("(Assumes first vertex is the 'source')");
+            // Console.WriteLine("(Assumes first vertex is the 'source')");
+            Console.WriteLine("Or 'test' to run tests");
             string input = Console.ReadLine();
-            int graphNum = int.Parse(input);
+            if (input == "test")
+            {
+                runTests();
+            }
+            else
+            {
+                int graphNum = int.Parse(input);
 
-            WeightedGraph g = CreateWeightedGraph(graphNum);
-            // Verify that it looks like the original
-            g.PrintWeightedEdges();
+                WeightedGraph g = CreateWeightedGraph(graphNum);
+                // Verify that it looks like the original
+                g.PrintWeightedEdges();
 
-            // Print the selected graph
-            g.initializeDijkstraTable();
-            g.PrintDijkstraTable();
+                // Print the selected graph
+                g.initializeDijkstraTable();
+                g.PrintDijkstraTable();
 
-            // Print the Dijkstra distances from first vertex provided
-            g.doDijkstraCalculations();
+                // Print the Dijkstra distances from first vertex provided
+                g.doDijkstraCalculations();
+                Console.WriteLine("------------------------------------");
+                Console.WriteLine("Dijkstra's Shortest Path:");
+                Console.WriteLine("------------------------------------");
+                g.PrintDijkstraTable();
+            }
+        }
+
+        static void runTests()
+        {
             Console.WriteLine("------------------------------------");
-            Console.WriteLine("Dijkstra's Shortest Path:");
+            Console.WriteLine("It should create a List of weighted edges from provided input");
             Console.WriteLine("------------------------------------");
-            g.PrintDijkstraTable();
+            // Setup
+            WeightedGraph graph = CreateWeightedGraph(1);
+
+            // Act
+            List<WeightedEdge> EdgeList = graph.GetWeightedEdges();
+
+            // Assert
+            if (EdgeList.Count == 5)
+                Console.WriteLine("pass");
+            else
+                Console.WriteLine("fail");
+
+            Console.WriteLine("------------------------------------");
+            Console.WriteLine("It should create an empty Dijkstra table on initialization");
+            Console.WriteLine("And return the source vertex key");
+            Console.WriteLine("------------------------------------");
+
+            // Act
+            string startingPoint = graph.initializeDijkstraTable();
+
+            // Assert
+            int numberOfRows = graph._dijkstraTable.GetRows().Count;
+            string firstRowKey = graph._dijkstraTable.GetRow("a").GetKey();
+            String stringForTestingComparison = new String("a");
+
+            if (startingPoint.Equals(stringForTestingComparison) && firstRowKey == startingPoint && numberOfRows == 4)
+                Console.WriteLine("pass");
+            else
+                Console.WriteLine("fail");
+
+
+            Console.WriteLine("------------------------------------");
+            Console.WriteLine("It calculate the shortest distances between vertexes");
+            Console.WriteLine("regardless of original edges (i.e. find shorter paths)");
+            Console.WriteLine("------------------------------------");
+
+            // The distance from B to A should now be shorter than it's original distance of 12
+
+            // Act
+            graph.doDijkstraCalculations();
+
+            // Assert
+            DijkstraTableRow B_RowKey = graph._dijkstraTable.GetRow("b");
+            WeightedEdge originalEdge = EdgeList.Find(x => x.GetStartVertex() == "a" && x.GetEndVertex() == "b");
+
+            if (B_RowKey.GetDistanceFromStart() == 5 && originalEdge.GetEdgeDistance() == 12)
+                Console.WriteLine("pass");
+            else
+                Console.WriteLine("fail");
         }
 
         /**
